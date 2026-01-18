@@ -1,42 +1,46 @@
 package com.company;
 
-import com.company.controllers.UserController;
 import com.company.controllers.ActivityController;
 import com.company.controllers.ActivityTypeController;
+import com.company.controllers.UserController;
 import com.company.controllers.interfaces.IUserController;
+import com.company.repositories.ActivityRepository;
+import com.company.repositories.ActivityTypeRepository;
+import com.company.repositories.UserRepository;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-/**
- *
- */
 public class MyApplication {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final UserController userController;
+
+    private final IUserController userController;
     private final ActivityController activityController;
     private final ActivityTypeController typeController;
 
-    public MyApplication(UserController userController,
-                         ActivityController activityController,
-                         ActivityTypeController typeController) {
+    public MyApplication(
+            IUserController userController,
+            ActivityController activityController,
+            ActivityTypeController typeController
+    ) {
         this.userController = userController;
         this.activityController = activityController;
         this.typeController = typeController;
     }
 
-
-
     private void mainMenu() {
-        System.out.println("\n=== My Application ===");
+        System.out.println();
+        System.out.println("Welcome to My Application");
+        System.out.println("Select option:");
         System.out.println("1. Get all users");
-        System.out.println("2. Get user by ID");
+        System.out.println("2. Get user by id");
         System.out.println("3. Create user");
         System.out.println("4. Get all activities");
-        System.out.println("5. Create activity");
-        System.out.println("6. Get all activity types");
+        System.out.println("5. Get all activity types");
         System.out.println("0. Exit");
-        System.out.print("Enter option (0-6): ");
+        System.out.println();
+        System.out.print("Enter option (1-5): ");
     }
 
     public void start() {
@@ -44,58 +48,51 @@ public class MyApplication {
             mainMenu();
             try {
                 int option = scanner.nextInt();
-                scanner.nextLine();
 
                 switch (option) {
-                    case 1 -> System.out.println(userController.getAllUsers());
-                    case 2 -> {
-                        System.out.print("Enter user ID: ");
-                        int id = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.println(userController.getUser(id));
-                    }
-                    case 3 -> {
-                        System.out.print("Enter name: ");
-                        String name = scanner.nextLine();
-                        System.out.print("Enter surname: ");
-                        String surname = scanner.nextLine();
-                        System.out.print("Enter gender (male/female): ");
-                        String gender = scanner.nextLine();
-                        System.out.println(userController.createUser(name, surname, gender));
-                    }
-                    case 4 -> System.out.println(activityController.getAllActivities());
-                    case 5 -> {
-                        System.out.print("Enter user ID: ");
-                        int userId = scanner.nextInt();
-                        System.out.print("Enter activity type ID: ");
-                        int typeId = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter date (YYYY-MM-DD): ");
-                        String date = scanner.nextLine();
-                        System.out.println(activityController.createActivity(userId, typeId, date));
-                    }
-                    case 6 -> System.out.println(typeController.getAllTypes());
-                    case 0 -> {
-                        System.out.println("Exiting...");
-                        return;
-                    }
-                    default -> System.out.println("Invalid option!");
+                    case 1: getAllUsersMenu(); break;
+                    case 2: getUserByIdMenu(); break;
+                    case 3: createUserMenu(); break;
+                    case 4: getAllActivitiesMenu(); break;
+                    case 5: getAllActivityTypesMenu(); break;
+                    default: return;
                 }
-
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
+            } catch (InputMismatchException e) {
+                System.out.println("Input must be integer");
                 scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-            System.out.println("*********");
+
+            System.out.println("*************************");
         }
     }
 
-    public static void main(String[] args) {
-        UserController userController = new UserController(); // Подставь свои репозитории
-        ActivityController activityController = new ActivityController();
-        ActivityTypeController typeController = new ActivityTypeController();
+    public void getAllUsersMenu() {
+        System.out.println(userController.getAllUsers());
+    }
 
-        MyApplication app = new MyApplication(userController, activityController, typeController);
-        app.start();
+    public void getUserByIdMenu() {
+        System.out.println("Please enter id");
+        int id = scanner.nextInt();
+        System.out.println(userController.getUser(id));
+    }
+
+    public void createUserMenu() {
+        System.out.println("Please enter name");
+        String name = scanner.next();
+        System.out.println("Please enter surname");
+        String surname = scanner.next();
+        System.out.println("Please enter gender (male/female)");
+        String gender = scanner.next();
+        System.out.println(userController.createUser(name, surname, gender));
+    }
+
+    public void getAllActivitiesMenu() {
+        System.out.println(activityController.getAllActivities());
+    }
+
+    public void getAllActivityTypesMenu() {
+        System.out.println(typeController.getAllTypes());
     }
 }
