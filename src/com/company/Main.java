@@ -11,6 +11,8 @@ import com.company.repositories.ActivityTypeRepository;
 import com.company.repositories.UserRepository;
 import com.company.repositories.interfaces.IUserRepository;
 
+import java.sql.Connection;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -22,11 +24,13 @@ public class Main {
                 "somedb"
         );
 
+        Connection conn = db.getConnection();
+
         IUserRepository userRepo = new UserRepository(db);
         IUserController userController = new UserController(userRepo);
 
-        ActivityRepository activityRepo = new ActivityRepository();
-        ActivityTypeRepository typeRepo = new ActivityTypeRepository();
+        ActivityRepository activityRepo = new ActivityRepository(conn);
+        ActivityTypeRepository typeRepo = new ActivityTypeRepository(conn);
 
         ActivityController activityController = new ActivityController(activityRepo);
         ActivityTypeController typeController = new ActivityTypeController(typeRepo);

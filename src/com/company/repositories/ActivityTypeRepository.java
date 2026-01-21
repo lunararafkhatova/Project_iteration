@@ -1,29 +1,66 @@
 package com.company.repositories;
 
 import com.company.models.ActivityType;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityTypeRepository {
-    private final List<ActivityType> types = new ArrayList<>();
 
-    public ActivityTypeRepository() {
-        types.add(new ActivityType(1, "RUNNING"));
-        types.add(new ActivityType(2, "SWIMMING"));
-        types.add(new ActivityType(3, "YOGA"));
-        types.add(new ActivityType(4, "CYCLING"));
-        types.add(new ActivityType(5, "OTHER"));
+    private final Connection connection;
+
+    public ActivityTypeRepository(Connection connection) {
+        this.connection = connection;
     }
 
     public List<ActivityType> getAll() {
+        List<ActivityType> types = new ArrayList<>();
+        String sql = "SELECT id, name FROM activity_types";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                types.add(new ActivityType(
+                        rs.getInt("id"),
+                        rs.getString("name")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return types;
     }
 
     public ActivityType getById(int id) {
-        return types.stream().filter(t -> t.getId() == id).findFirst().orElse(null);
+        String sql = "SELECT id, name FROM activity_types WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new ActivityType(
+                            rs.getInt("id"),
+                            rs.getString("name")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void add(ActivityType type) {
+        String sql = "INSERT INTO activity_types(name) VALUES (?)";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, type.getName());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
