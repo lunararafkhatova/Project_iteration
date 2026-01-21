@@ -29,6 +29,6 @@ public class ActivityType {
     }
     @Override
     public String toString() {
-        return "ActivityType [ID: " + id + ", Name: " + name + "]";
+        return String.format("Type ID: %-3d | Category Name: %s", id, name);
     }
 }

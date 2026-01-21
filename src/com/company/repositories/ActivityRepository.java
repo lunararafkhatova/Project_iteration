@@ -2,9 +2,7 @@ package com.company.repositories;
 
 import com.company.models.Activity;
 import com.company.models.ActivityType;
-
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,17 +34,23 @@ public class ActivityRepository {
 
             while (rs.next()) {
                 Activity activity = new Activity();
+
                 activity.setId(rs.getInt("id"));
                 activity.setUserId(rs.getInt("user_id"));
                 activity.setName(rs.getString("name"));
                 activity.setDuration(rs.getInt("duration"));
-                activity.setActivityDate(rs.getDate("activity_date").toLocalDate());
+
+                java.sql.Date sqlDate = rs.getDate("activity_date");
+                if (sqlDate != null) {
+                    activity.setActivityDate(sqlDate.toLocalDate());
+                }
 
                 ActivityType type = new ActivityType();
                 type.setId(rs.getInt("activity_type_id"));
                 type.setName(rs.getString("type_name"));
 
                 activity.setType(type);
+
                 activities.add(activity);
             }
 
@@ -55,5 +59,34 @@ public class ActivityRepository {
         }
 
         return activities;
+    }
+    public boolean create(Activity activity) {
+        String sql = "INSERT INTO activities (user_id, activity_type_id, name, duration, activity_date) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, activity.getUserId());
+            ps.setInt(2, activity.getType().getId());
+            ps.setString(3, activity.getName());
+            ps.setInt(4, activity.getDuration());
+            ps.setDate(5, Date.valueOf(activity.getActivityDate()));
+
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+            return false;
+        }
+    }
+    public boolean delete(int id) {
+        String sql = "DELETE FROM activities WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Delete error: " + e.getMessage());
+            return false;
+        }
     }
 }

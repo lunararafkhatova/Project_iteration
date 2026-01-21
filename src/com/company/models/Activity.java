@@ -23,9 +23,7 @@ public class Activity {
         this.type = type;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() {return id;}
 
     public void setId(int id) {
         this.id = id;
@@ -73,12 +71,15 @@ public class Activity {
 
     @Override
     public String toString() {
-        return "Activity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", duration=" + duration +
-                ", date=" + activityDate +
-                ", type=" + (type != null ? type.getName() : "null") +
-                '}';
+        return "-----------------------------------\n" +
+                " Activity Details:\n" +
+                "-----------------------------------\n" +
+                " ID:       " + id + "\n" +
+                " User ID:  " + userId + "\n" +
+                " Name:     " + name + "\n" +
+                " Duration: " + duration + " min\n" +
+                " Date:     " + activityDate + "\n" +
+                " Type:     " + (type != null ? type.getName() : "None") + "\n" +
+                "-----------------------------------";
     }
 }
