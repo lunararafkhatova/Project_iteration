@@ -1,8 +1,8 @@
 package com.company;
 
-import com.company.controllers.ActivityController;
-import com.company.controllers.ActivityTypeController;
 import com.company.controllers.interfaces.IUserController;
+import com.company.controllers.interfaces.IActivityController;
+import com.company.controllers.interfaces.IActivityTypeController;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -12,13 +12,13 @@ public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
 
     private final IUserController userController;
-    private final ActivityController activityController;
-    private final ActivityTypeController typeController;
+    private final IActivityController activityController;
+    private final IActivityTypeController typeController;
 
     public MyApplication(
             IUserController userController,
-            ActivityController activityController,
-            ActivityTypeController typeController
+            IActivityController activityController,
+            IActivityTypeController typeController
     ) {
         this.userController = userController;
         this.activityController = activityController;

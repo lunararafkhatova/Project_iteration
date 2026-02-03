@@ -3,12 +3,13 @@ package com.company.repositories;
 import com.company.models.Activity;
 import com.company.models.ActivityType;
 import com.company.models.ActivityFullDTO;
+import com.company.repositories.interfaces.IActivityRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityRepository {
+public class ActivityRepository implements IActivityRepository {
 
     private final Connection connection;
 

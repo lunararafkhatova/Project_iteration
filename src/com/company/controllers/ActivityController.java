@@ -1,20 +1,21 @@
 package com.company.controllers;
 
+import com.company.controllers.interfaces.IActivityController;
 import com.company.models.Activity;
 import com.company.models.ActivityType;
 import com.company.models.ActivityFullDTO;
-import com.company.repositories.ActivityRepository;
+import com.company.repositories.interfaces.IActivityRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Locale;
 
-public class ActivityController {
+public class ActivityController implements IActivityController {
 
-    private final ActivityRepository repository;
+    private final IActivityRepository repository;
 
-    public ActivityController(ActivityRepository repository) {
+    public ActivityController(IActivityRepository repository) {
         this.repository = repository;
     }
 

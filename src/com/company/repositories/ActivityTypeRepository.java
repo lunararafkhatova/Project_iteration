@@ -1,12 +1,13 @@
 package com.company.repositories;
 
 import com.company.models.ActivityType;
+import com.company.repositories.interfaces.IActivityTypeRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityTypeRepository {
+public class ActivityTypeRepository implements IActivityTypeRepository {
 
     private final Connection connection;
 

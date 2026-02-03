@@ -1,15 +1,17 @@
 package com.company.controllers;
 
+import com.company.controllers.interfaces.IActivityTypeController;
 import com.company.models.ActivityType;
-import com.company.repositories.ActivityTypeRepository;
+import com.company.repositories.interfaces.IActivityTypeRepository;
+
 
 import java.util.List;
 
-public class ActivityTypeController {
+public class ActivityTypeController implements IActivityTypeController {
 
-    private final ActivityTypeRepository repository;
+    private final IActivityTypeRepository repository;
 
-    public ActivityTypeController(ActivityTypeRepository repository) {
+    public ActivityTypeController(IActivityTypeRepository repository) {
         this.repository = repository;
     }
 
