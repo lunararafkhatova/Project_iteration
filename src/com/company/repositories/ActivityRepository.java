@@ -2,6 +2,8 @@ package com.company.repositories;
 
 import com.company.models.Activity;
 import com.company.models.ActivityType;
+import com.company.models.ActivityFullDTO;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ public class ActivityRepository {
         this.connection = connection;
     }
 
+    // 1) GET ALL ACTIVITIES (OLD METHOD)
     public List<Activity> getAll() {
         List<Activity> activities = new ArrayList<>();
 
@@ -60,6 +63,8 @@ public class ActivityRepository {
 
         return activities;
     }
+
+    // 2) CREATE ACTIVITY
     public boolean create(Activity activity) {
         String sql = "INSERT INTO activities (user_id, activity_type_id, name, duration, activity_date) VALUES (?, ?, ?, ?, ?)";
 
@@ -77,6 +82,8 @@ public class ActivityRepository {
             return false;
         }
     }
+
+    // 3) DELETE ACTIVITY
     public boolean delete(int id) {
         String sql = "DELETE FROM activities WHERE id = ?";
 
@@ -88,5 +95,38 @@ public class ActivityRepository {
             System.out.println("Delete error: " + e.getMessage());
             return false;
         }
+    }
+
+    // 4) JOIN METHOD – FULL ACTIVITIES (MAIN REQUIREMENT)
+    public List<ActivityFullDTO> getFullActivities() {
+        List<ActivityFullDTO> list = new ArrayList<>();
+
+        String sql =
+                "SELECT a.id, u.name, a.activity_date, at.name, c.name, a.duration " +
+                        "FROM activities a " +
+                        "JOIN users u ON a.user_id = u.id " +
+                        "JOIN activity_types at ON a.activity_type_id = at.id " +
+                        "JOIN activity_categories c ON at.category_id = c.id";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(new ActivityFullDTO(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getDate(3).toLocalDate(),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getInt(6)
+                ));
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 }

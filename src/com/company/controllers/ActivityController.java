@@ -2,7 +2,9 @@ package com.company.controllers;
 
 import com.company.models.Activity;
 import com.company.models.ActivityType;
+import com.company.models.ActivityFullDTO;
 import com.company.repositories.ActivityRepository;
+
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 import java.util.List;
@@ -15,13 +17,29 @@ public class ActivityController {
     public ActivityController(ActivityRepository repository) {
         this.repository = repository;
     }
-    public String createActivity(int userId, int typeId, String name, int duration, String dateStr) {
+
+    public String createActivity(int userId, int typeId, String name, int duration, String dateStr, String role) {
+
+        if (!role.equalsIgnoreCase("ADMIN")) {
+            return "Access denied! Only ADMIN can create activities.";
+        }
+
+        if (name == null || name.isBlank()) {
+            return "Validation error: Activity name is required.";
+        }
+
+        if (duration <= 0) {
+            return "Validation error: Duration must be greater than 0.";
+        }
+
         try {
+            LocalDate date = LocalDate.parse(dateStr);
+
             Activity activity = new Activity();
             activity.setUserId(userId);
             activity.setName(name);
             activity.setDuration(duration);
-            activity.setActivityDate(LocalDate.parse(dateStr));
+            activity.setActivityDate(date);
 
             ActivityType type = new ActivityType();
             type.setId(typeId);
@@ -29,11 +47,15 @@ public class ActivityController {
 
             boolean created = repository.create(activity);
 
-            return created ? "Activity was created successfully!" : "Activity creation failed!";
+            return created
+                    ? "Activity was created successfully!"
+                    : "Activity creation failed!";
+
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return "Error: Invalid date format (use YYYY-MM-DD)";
         }
     }
+
     public List<Activity> getAllActivities() {
         return repository.getAll();
     }
@@ -55,8 +77,21 @@ public class ActivityController {
                 "Total minutes this week for user " + userId + ": " + totalMinutes
         );
     }
-    public String deleteActivity(int id) {
+
+    public String deleteActivity(int id, String role) {
+
+        if (!role.equalsIgnoreCase("ADMIN")) {
+            return "Access denied! Only ADMIN can delete activities.";
+        }
+
         boolean deleted = repository.delete(id);
-        return deleted ? "Activity was deleted successfully!" : "Activity with ID " + id + " not found.";
+
+        return deleted
+                ? "Activity was deleted successfully!"
+                : "Activity with ID " + id + " not found.";
+    }
+
+    public List<ActivityFullDTO> getFullActivities() {
+        return repository.getFullActivities();
     }
 }

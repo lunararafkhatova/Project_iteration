@@ -3,6 +3,7 @@ package com.company;
 import com.company.controllers.ActivityController;
 import com.company.controllers.ActivityTypeController;
 import com.company.controllers.interfaces.IUserController;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -35,9 +36,10 @@ public class MyApplication {
         System.out.println("5. Get all activity types");
         System.out.println("6. Create activity");
         System.out.println("7. Delete activity");
+        System.out.println("8. Get full activities (JOIN)");
         System.out.println("0. Exit");
         System.out.println();
-        System.out.print("Enter option (1-7): ");
+        System.out.print("Enter option (1-8): ");
     }
 
     public void start() {
@@ -47,25 +49,16 @@ public class MyApplication {
                 int option = scanner.nextInt();
 
                 switch (option) {
-                    case 1:
-                        getAllUsersMenu();
-                        break;
-                    case 2:
-                        getUserByIdMenu();
-                        break;
-                    case 3:
-                        createUserMenu();
-                        break;
-                    case 4:
-                        getAllActivitiesMenu();
-                        break;
-                    case 5:
-                        getAllActivityTypesMenu();
-                        break;
-                    case 6: createActivityMenu(); break;
-                    case 7: deleteActivityMenu(); break;
-                    default:
-                        return;
+                    case 1 -> getAllUsersMenu();
+                    case 2 -> getUserByIdMenu();
+                    case 3 -> createUserMenu();
+                    case 4 -> getAllActivitiesMenu();
+                    case 5 -> getAllActivityTypesMenu();
+                    case 6 -> createActivityMenu();
+                    case 7 -> deleteActivityMenu();
+                    case 8 -> getFullActivitiesMenu();
+                    case 0 -> { return; }
+                    default -> System.out.println("Invalid option");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Input must be integer");
@@ -108,11 +101,12 @@ public class MyApplication {
             System.out.println(type);
         }
     }
+
     public void createActivityMenu() {
         System.out.println("Enter User ID:");
         int userId = scanner.nextInt();
 
-        System.out.println("Enter Activity Type ID (from option 5):");
+        System.out.println("Enter Activity Type ID:");
         int typeId = scanner.nextInt();
 
         System.out.println("Enter Activity Name:");
@@ -125,18 +119,29 @@ public class MyApplication {
         System.out.println("Enter Date (YYYY-MM-DD):");
         String date = scanner.next();
 
-        String result = activityController.createActivity(userId, typeId, name, duration, date);
+        System.out.println("Enter your role (ADMIN or USER):");
+        String role = scanner.next();
+
+        String result = activityController.createActivity(
+                userId, typeId, name, duration, date, role
+        );
+
         System.out.println(result);
     }
+
     public void deleteActivityMenu() {
         System.out.println("Enter Activity ID to delete:");
-        try {
-            int id = scanner.nextInt();
-            String result = activityController.deleteActivity(id);
-            System.out.println(result);
-        } catch (InputMismatchException e) {
-            System.out.println("ID must be a number!");
-            scanner.nextLine();
-        }
+        int id = scanner.nextInt();
+
+        System.out.println("Enter your role (ADMIN or USER):");
+        String role = scanner.next();
+
+        String result = activityController.deleteActivity(id, role);
+        System.out.println(result);
+    }
+
+    public void getFullActivitiesMenu() {
+        activityController.getFullActivities()
+                .forEach(System.out::println);
     }
 }
