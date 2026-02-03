@@ -16,7 +16,6 @@ public class ActivityRepository {
         this.connection = connection;
     }
 
-    // 1) GET ALL ACTIVITIES (OLD METHOD)
     public List<Activity> getAll() {
         List<Activity> activities = new ArrayList<>();
 
@@ -64,7 +63,6 @@ public class ActivityRepository {
         return activities;
     }
 
-    // 2) CREATE ACTIVITY
     public boolean create(Activity activity) {
         String sql = "INSERT INTO activities (user_id, activity_type_id, name, duration, activity_date) VALUES (?, ?, ?, ?, ?)";
 
@@ -83,7 +81,6 @@ public class ActivityRepository {
         }
     }
 
-    // 3) DELETE ACTIVITY
     public boolean delete(int id) {
         String sql = "DELETE FROM activities WHERE id = ?";
 
@@ -97,7 +94,6 @@ public class ActivityRepository {
         }
     }
 
-    // 4) JOIN METHOD – FULL ACTIVITIES (MAIN REQUIREMENT)
     public List<ActivityFullDTO> getFullActivities() {
         List<ActivityFullDTO> list = new ArrayList<>();
 
