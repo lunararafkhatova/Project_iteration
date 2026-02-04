@@ -99,11 +99,16 @@ public class ActivityRepository implements IActivityRepository {
         List<ActivityFullDTO> list = new ArrayList<>();
 
         String sql =
+
                 "SELECT a.id, u.name, a.activity_date, at.name, c.name, a.duration " +
-                        "FROM activities a " +
-                        "JOIN users u ON a.user_id = u.id " +
-                        "JOIN activity_types at ON a.activity_type_id = at.id " +
-                        "JOIN activity_categories c ON at.category_id = c.id";
+
+                        "FROM users u " +
+
+                        "LEFT JOIN activities a ON u.id = a.user_id " +
+
+                        "LEFT JOIN activity_types at ON a.activity_type_id = at.id " +
+
+                        "LEFT JOIN activity_categories c ON at.category_id = c.id";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -113,7 +118,7 @@ public class ActivityRepository implements IActivityRepository {
                 list.add(new ActivityFullDTO(
                         rs.getInt(1),
                         rs.getString(2),
-                        rs.getDate(3).toLocalDate(),
+                        rs.getDate(3) != null ? rs.getDate(3).toLocalDate() : null,
                         rs.getString(4),
                         rs.getString(5),
                         rs.getInt(6)

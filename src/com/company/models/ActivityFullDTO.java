@@ -32,4 +32,10 @@ public class ActivityFullDTO {
                 " | category=" + categoryName +
                 " | duration=" + durationMin;
     }
+    public int getActivityId() { return activityId; }
+    public String getUserName() { return userName; }
+    public java.time.LocalDate getActivityDate() { return activityDate; }
+    public String getActivityTypeName() { return activityTypeName; }
+    public String getCategoryName() { return categoryName; }
+    public int getDurationMin() { return durationMin; }
 }

@@ -141,7 +141,31 @@ public class MyApplication {
     }
 
     public void getFullActivitiesMenu() {
-        activityController.getFullActivities()
-                .forEach(System.out::println);
+        var activities = activityController.getFullActivities();
+
+        if (activities.isEmpty()) {
+            System.out.println("\n>>> No activities found. Check your database tables.");
+            return;
+        }
+
+        // Рисуем красивую шапку
+        System.out.println("\n" + "=".repeat(98));
+        System.out.println("                          FULL ACTIVITIES REPORT");
+        System.out.println("=".repeat(98));
+        System.out.printf("| %-4s | %-15s | %-12s | %-20s | %-15s | %-8s |%n",
+                "ID", "USER", "DATE", "TYPE", "CATEGORY", "MINS");
+        System.out.println("-".repeat(98));
+
+        // Выводим данные строками
+        for (var a : activities) {
+            System.out.printf("| %-4d | %-15s | %-12s | %-20s | %-15s | %-8d |%n",
+                    a.getActivityId(),
+                    a.getUserName(),
+                    a.getActivityDate(),
+                    a.getActivityTypeName(),
+                    a.getCategoryName(),
+                    a.getDurationMin());
+        }
+        System.out.println("=".repeat(98));
     }
 }
