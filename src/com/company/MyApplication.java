@@ -8,6 +8,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MyApplication {
+    private String currentRole = "GUEST";
+    private static final String ADMIN_PASSWORD = "6767";
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -37,12 +39,14 @@ public class MyApplication {
         System.out.println("6. Create activity");
         System.out.println("7. Delete activity");
         System.out.println("8. Get full activities (JOIN)");
+        System.out.println("9. Show Quick Stats");
         System.out.println("0. Exit");
         System.out.println();
         System.out.print("Enter option (1-8): ");
     }
 
     public void start() {
+        authenticate();
         while (true) {
             mainMenu();
             try {
@@ -54,9 +58,30 @@ public class MyApplication {
                     case 3 -> createUserMenu();
                     case 4 -> getAllActivitiesMenu();
                     case 5 -> getAllActivityTypesMenu();
-                    case 6 -> createActivityMenu();
-                    case 7 -> deleteActivityMenu();
+                    case 6 -> {
+                        if (currentRole.equalsIgnoreCase("ADMIN")) {
+                            createActivityMenu();
+                        } else {
+                            System.out.println("ACCESS DENIED: Only Admins can create activities!");
+                        }
+                    }
+                    case 7 -> {
+                        if (currentRole.equalsIgnoreCase("ADMIN")) {
+                            deleteActivityMenu();
+                        } else {
+                            System.out.println("ACCESS DENIED: Only Admins can delete activities!");
+                        }
+                    }
                     case 8 -> getFullActivitiesMenu();
+                    case 9 -> {
+
+                        if (currentRole.equalsIgnoreCase("ADMIN")) {
+                            activityController.showBasicStats();
+                        } else {
+                            System.out.println("ACCESS DENIED: Only Admins can see statistics!");
+                        }
+                    }
+
                     case 0 -> { return; }
                     default -> System.out.println("Invalid option");
                 }
@@ -119,11 +144,9 @@ public class MyApplication {
         System.out.println("Enter Date (YYYY-MM-DD):");
         String date = scanner.next();
 
-        System.out.println("Enter your role (ADMIN or USER):");
-        String role = scanner.next();
 
         String result = activityController.createActivity(
-                userId, typeId, name, duration, date, role
+                userId, typeId, name, duration, date, currentRole
         );
 
         System.out.println(result);
@@ -132,11 +155,7 @@ public class MyApplication {
     public void deleteActivityMenu() {
         System.out.println("Enter Activity ID to delete:");
         int id = scanner.nextInt();
-
-        System.out.println("Enter your role (ADMIN or USER):");
-        String role = scanner.next();
-
-        String result = activityController.deleteActivity(id, role);
+        String result = activityController.deleteActivity(id, currentRole);
         System.out.println(result);
     }
 
@@ -148,7 +167,6 @@ public class MyApplication {
             return;
         }
 
-        // Рисуем красивую шапку
         System.out.println("\n" + "=".repeat(98));
         System.out.println("                          FULL ACTIVITIES REPORT");
         System.out.println("=".repeat(98));
@@ -156,7 +174,6 @@ public class MyApplication {
                 "ID", "USER", "DATE", "TYPE", "CATEGORY", "MINS");
         System.out.println("-".repeat(98));
 
-        // Выводим данные строками
         for (var a : activities) {
             System.out.printf("| %-4d | %-15s | %-12s | %-20s | %-15s | %-8d |%n",
                     a.getActivityId(),
@@ -167,5 +184,22 @@ public class MyApplication {
                     a.getDurationMin());
         }
         System.out.println("=".repeat(98));
+    }
+    private void authenticate() {
+        System.out.println("Select a role (1 - ADMIN, 2 - USER):");
+        int choice = scanner.nextInt();
+        if (choice == 1) {
+            System.out.print("Enter the administrator password: ");
+            String pass = scanner.next();
+            if (pass.equals(ADMIN_PASSWORD)) {
+                currentRole = "ADMIN";
+                System.out.println("Authorization successful. Administrator rights granted..");
+            } else {
+                System.out.println("Incorrect password! Login in USER mode.");
+                currentRole = "USER";
+            }
+        } else {
+            currentRole = "USER";
+        }
     }
 }

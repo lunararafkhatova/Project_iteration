@@ -95,4 +95,15 @@ public class ActivityController implements IActivityController {
     public List<ActivityFullDTO> getFullActivities() {
         return repository.getFullActivities();
     }
+    public void showBasicStats() {
+        List<ActivityFullDTO> activities = repository.getFullActivities();
+
+        int totalTime = activities.stream().mapToInt(a -> a.getDurationMin()).sum();
+        long userCount = activities.stream().map(a -> a.getUserName()).distinct().count();
+
+        System.out.println("\n>>> Quick Stats:");
+        System.out.println("Total minutes tracked: " + totalTime);
+        System.out.println("Unique users active: " + userCount);
+    }
+
 }

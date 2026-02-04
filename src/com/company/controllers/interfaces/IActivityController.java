@@ -9,5 +9,6 @@ public interface IActivityController {
     String deleteActivity(int id, String role);
     List<Activity> getAllActivities();
     List<ActivityFullDTO> getFullActivities();
+    void showBasicStats();
 }
 
