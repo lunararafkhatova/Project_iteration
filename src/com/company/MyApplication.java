@@ -3,11 +3,13 @@ package com.company;
 import com.company.controllers.interfaces.IUserController;
 import com.company.controllers.interfaces.IActivityController;
 import com.company.controllers.interfaces.IActivityTypeController;
+import com.company.controllers.interfaces.IActivityCategoryController;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MyApplication {
+
     private String currentRole = "GUEST";
     private static final String ADMIN_PASSWORD = "6767";
 
@@ -16,190 +18,238 @@ public class MyApplication {
     private final IUserController userController;
     private final IActivityController activityController;
     private final IActivityTypeController typeController;
+    private final IActivityCategoryController categoryController;
 
     public MyApplication(
             IUserController userController,
             IActivityController activityController,
-            IActivityTypeController typeController
+            IActivityTypeController typeController,
+            IActivityCategoryController categoryController
     ) {
         this.userController = userController;
         this.activityController = activityController;
         this.typeController = typeController;
-    }
-
-    private void mainMenu() {
-        System.out.println();
-        System.out.println("Welcome to My Application");
-        System.out.println("Select option:");
-        System.out.println("1. Get all users");
-        System.out.println("2. Get user by id");
-        System.out.println("3. Create user");
-        System.out.println("4. Get all activities");
-        System.out.println("5. Get all activity types");
-        System.out.println("6. Create activity");
-        System.out.println("7. Delete activity");
-        System.out.println("8. Get full activities (JOIN)");
-        System.out.println("9. Show Quick Stats");
-        System.out.println("0. Exit");
-        System.out.println();
-        System.out.print("Enter option (1-8): ");
+        this.categoryController = categoryController;
     }
 
     public void start() {
         authenticate();
+
         while (true) {
             mainMenu();
             try {
                 int option = scanner.nextInt();
 
                 switch (option) {
-                    case 1 -> getAllUsersMenu();
-                    case 2 -> getUserByIdMenu();
-                    case 3 -> createUserMenu();
-                    case 4 -> getAllActivitiesMenu();
-                    case 5 -> getAllActivityTypesMenu();
+
+                    case 1 -> System.out.println(userController.getAllUsers());
+
+                    case 2 -> {
+                        System.out.print("Enter user ID: ");
+                        int id = scanner.nextInt();
+                        System.out.println(userController.getUser(id));
+                    }
+
+                    case 3 -> {
+                        System.out.print("Enter name: ");
+                        String name = scanner.next();
+                        System.out.print("Enter surname: ");
+                        String surname = scanner.next();
+                        System.out.print("Enter gender: ");
+                        String gender = scanner.next();
+                        System.out.println(userController.createUser(name, surname, gender));
+                    }
+
+                    case 4 -> System.out.println(activityController.getAllActivities());
+
+                    case 5 -> typeController.getAllTypes().forEach(System.out::println);
+
                     case 6 -> {
                         if (currentRole.equalsIgnoreCase("ADMIN")) {
                             createActivityMenu();
                         } else {
-                            System.out.println("ACCESS DENIED: Only Admins can create activities!");
+                            System.out.println("ACCESS DENIED");
                         }
                     }
+
                     case 7 -> {
                         if (currentRole.equalsIgnoreCase("ADMIN")) {
                             deleteActivityMenu();
                         } else {
-                            System.out.println("ACCESS DENIED: Only Admins can delete activities!");
+                            System.out.println("ACCESS DENIED");
                         }
                     }
-                    case 8 -> getFullActivitiesMenu();
-                    case 9 -> {
 
+                    case 8 -> getFullActivitiesMenu();
+
+                    case 9 -> {
                         if (currentRole.equalsIgnoreCase("ADMIN")) {
                             activityController.showBasicStats();
                         } else {
-                            System.out.println("ACCESS DENIED: Only Admins can see statistics!");
+                            System.out.println("ACCESS DENIED");
                         }
                     }
 
-                    case 0 -> { return; }
+                    case 10 -> {
+                        if (currentRole.equalsIgnoreCase("USER")) {
+                            showActivitiesByCategoryMenu();
+                        } else {
+                            System.out.println("ACCESS DENIED");
+                        }
+                    }
+
+                    case 0 -> {
+                        return;
+                    }
+
                     default -> System.out.println("Invalid option");
                 }
+
             } catch (InputMismatchException e) {
                 System.out.println("Input must be integer");
                 scanner.nextLine();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
             }
 
             System.out.println("*************************");
         }
     }
 
-    public void getAllUsersMenu() {
-        System.out.println(userController.getAllUsers());
-    }
+    private void mainMenu() {
+        System.out.println("\nSelect option:");
+        System.out.println("1. Get all users");
+        System.out.println("2. Get user by id");
+        System.out.println("3. Create user");
+        System.out.println("4. Get all activities");
+        System.out.println("5. Get all activity types");
+        System.out.println("8. Get full activities (JOIN)");
 
-    public void getUserByIdMenu() {
-        System.out.println("Please enter id");
-        int id = scanner.nextInt();
-        System.out.println(userController.getUser(id));
-    }
-
-    public void createUserMenu() {
-        System.out.println("Please enter name");
-        String name = scanner.next();
-        System.out.println("Please enter surname");
-        String surname = scanner.next();
-        System.out.println("Please enter gender (male/female)");
-        String gender = scanner.next();
-        System.out.println(userController.createUser(name, surname, gender));
-    }
-
-    public void getAllActivitiesMenu() {
-        System.out.println(activityController.getAllActivities());
-    }
-
-    public void getAllActivityTypesMenu() {
-        var types = typeController.getAllTypes();
-        for (var type : types) {
-            System.out.println(type);
+        if (currentRole.equalsIgnoreCase("ADMIN")) {
+            System.out.println("6. Create activity");
+            System.out.println("7. Delete activity");
+            System.out.println("9. Show Quick Stats");
         }
+
+        if (currentRole.equalsIgnoreCase("USER")) {
+            System.out.println("10. View activities by category");
+        }
+
+        System.out.println("0. Exit");
+        System.out.print("Enter option: ");
     }
 
-    public void createActivityMenu() {
-        System.out.println("Enter User ID:");
+    private void createActivityMenu() {
+
+        System.out.print("Enter User ID: ");
         int userId = scanner.nextInt();
 
-        System.out.println("Enter Activity Type ID:");
+        System.out.print("Enter Activity Type ID: ");
         int typeId = scanner.nextInt();
 
-        System.out.println("Enter Activity Name:");
         scanner.nextLine();
+
+        System.out.print("Enter Activity Name: ");
         String name = scanner.nextLine();
 
-        System.out.println("Enter Duration (minutes):");
+        System.out.print("Enter Duration: ");
         int duration = scanner.nextInt();
 
-        System.out.println("Enter Date (YYYY-MM-DD):");
+        System.out.print("Enter Date (YYYY-MM-DD): ");
         String date = scanner.next();
 
-
-        String result = activityController.createActivity(
-                userId, typeId, name, duration, date, currentRole
+        System.out.println(
+                activityController.createActivity(userId, typeId, name, duration, date)
         );
-
-        System.out.println(result);
     }
 
-    public void deleteActivityMenu() {
-        System.out.println("Enter Activity ID to delete:");
+    private void deleteActivityMenu() {
+        System.out.print("Enter Activity ID: ");
         int id = scanner.nextInt();
-        String result = activityController.deleteActivity(id, currentRole);
-        System.out.println(result);
+        System.out.println(activityController.deleteActivity(id, currentRole));
     }
 
-    public void getFullActivitiesMenu() {
+    private void getFullActivitiesMenu() {
         var activities = activityController.getFullActivities();
 
         if (activities.isEmpty()) {
-            System.out.println("\n>>> No activities found. Check your database tables.");
+            System.out.println("No activities found");
             return;
         }
 
-        System.out.println("\n" + "=".repeat(98));
-        System.out.println("                          FULL ACTIVITIES REPORT");
-        System.out.println("=".repeat(98));
-        System.out.printf("| %-4s | %-15s | %-12s | %-20s | %-15s | %-8s |%n",
-                "ID", "USER", "DATE", "TYPE", "CATEGORY", "MINS");
-        System.out.println("-".repeat(98));
-
         for (var a : activities) {
-            System.out.printf("| %-4d | %-15s | %-12s | %-20s | %-15s | %-8d |%n",
-                    a.getActivityId(),
-                    a.getUserName(),
-                    a.getActivityDate(),
-                    a.getActivityTypeName(),
-                    a.getCategoryName(),
-                    a.getDurationMin());
+            System.out.println(
+                    a.getActivityId() + " | " +
+                            a.getUserName() + " | " +
+                            a.getActivityDate() + " | " +
+                            a.getActivityTypeName() + " | " +
+                            a.getCategoryName() + " | " +
+                            a.getDurationMin()
+            );
         }
-        System.out.println("=".repeat(98));
     }
-    private void authenticate() {
-        System.out.println("Select a role (1 - ADMIN, 2 - USER):");
+
+    private void showActivitiesByCategoryMenu() {
+
+        var categories = categoryController.getAllCategories();
+        if (categories.isEmpty()) {
+            System.out.println("No categories found");
+            return;
+        }
+
+        System.out.println("\nChoose a category:");
+        for (var c : categories) {
+            System.out.println(c.getId() + ". " + c.getName());
+        }
+
+        System.out.print("Enter category ID (0 to cancel): ");
+        int categoryId = scanner.nextInt();
+        if (categoryId == 0) return;
+
+        var activities = activityController.getActivitiesByCategory(categoryId);
+        if (activities.isEmpty()) {
+            System.out.println("No activities in this category");
+            return;
+        }
+
+        System.out.println("\nChoose an activity:");
+        for (int i = 0; i < activities.size(); i++) {
+            System.out.println((i + 1) + ". " + activities.get(i));
+        }
+
+        System.out.print("Enter activity number (0 to cancel): ");
         int choice = scanner.nextInt();
-        if (choice == 1) {
-            System.out.print("Enter the administrator password: ");
-            String pass = scanner.next();
-            if (pass.equals(ADMIN_PASSWORD)) {
-                currentRole = "ADMIN";
-                System.out.println("Authorization successful. Administrator rights granted..");
+        if (choice == 0) return;
+
+        if (choice < 1 || choice > activities.size()) {
+            System.out.println("Invalid choice");
+            return;
+        }
+
+        String selectedActivity = activities.get(choice - 1);
+        System.out.println("\nYou selected activity: " + selectedActivity);
+    }
+
+    private void authenticate() {
+        System.out.print("Select role (1 - ADMIN, 2 - USER): ");
+        try {
+            int choice = scanner.nextInt();
+
+            if (choice == 1) {
+                System.out.print("Enter admin password: ");
+                String pass = scanner.next();
+                if (pass.equals(ADMIN_PASSWORD)) {
+                    currentRole = "ADMIN";
+                    System.out.println("Logged in as ADMIN");
+                } else {
+                    currentRole = "USER";
+                    System.out.println("Wrong password. Logged in as USER");
+                }
             } else {
-                System.out.println("Incorrect password! Login in USER mode.");
                 currentRole = "USER";
+                System.out.println("Logged in as USER");
             }
-        } else {
+        } catch (Exception e) {
             currentRole = "USER";
+            scanner.nextLine();
         }
     }
 }

@@ -18,4 +18,8 @@ public class ActivityTypeController implements IActivityTypeController {
     public List<ActivityType> getAllTypes() {
         return repository.getAll();
     }
+
+    public List<ActivityType> getTypesByCategory(int categoryId) {
+        return repository.getByCategoryId(categoryId);
+    }
 }
