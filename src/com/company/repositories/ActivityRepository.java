@@ -43,9 +43,9 @@ public class ActivityRepository implements IActivityRepository {
                 activity.setName(rs.getString("name"));
                 activity.setDuration(rs.getInt("duration"));
 
-                java.sql.Date sqlDate = rs.getDate("activity_date");
-                if (sqlDate != null) {
-                    activity.setActivityDate(sqlDate.toLocalDate());
+                Date d = rs.getDate("activity_date");
+                if (d != null) {
+                    activity.setActivityDate(d.toLocalDate());
                 }
 
                 ActivityType type = new ActivityType();
@@ -53,12 +53,11 @@ public class ActivityRepository implements IActivityRepository {
                 type.setName(rs.getString("type_name"));
 
                 activity.setType(type);
-
                 activities.add(activity);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return activities;
@@ -68,6 +67,7 @@ public class ActivityRepository implements IActivityRepository {
         String sql = "INSERT INTO activities (user_id, activity_type_id, name, duration, activity_date) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
             ps.setInt(1, activity.getUserId());
             ps.setInt(2, activity.getType().getId());
             ps.setString(3, activity.getName());
@@ -76,8 +76,8 @@ public class ActivityRepository implements IActivityRepository {
 
             ps.executeUpdate();
             return true;
+
         } catch (SQLException e) {
-            System.out.println("SQL Error: " + e.getMessage());
             return false;
         }
     }
@@ -87,10 +87,8 @@ public class ActivityRepository implements IActivityRepository {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Delete error: " + e.getMessage());
             return false;
         }
     }
@@ -98,34 +96,60 @@ public class ActivityRepository implements IActivityRepository {
     public List<ActivityFullDTO> getFullActivities() {
         List<ActivityFullDTO> list = new ArrayList<>();
 
-        String sql =
+        String sql = """
+            SELECT a.id,
+                   u.name,
+                   a.activity_date,
+                   at.name,
+                   c.name,
+                   a.duration
+            FROM activities a
+            JOIN users u ON u.id = a.user_id
+            JOIN activity_types at ON a.activity_type_id = at.id
+            JOIN activity_categories c ON at.category_id = c.id
+        """;
 
-                "SELECT a.id, u.name, a.activity_date, at.name, c.name, a.duration " +
-
-                        "FROM users u " +
-
-                        "LEFT JOIN activities a ON u.id = a.user_id " +
-
-                        "LEFT JOIN activity_types at ON a.activity_type_id = at.id " +
-
-                        "LEFT JOIN activity_categories c ON at.category_id = c.id";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 list.add(new ActivityFullDTO(
                         rs.getInt(1),
                         rs.getString(2),
-                        rs.getDate(3) != null ? rs.getDate(3).toLocalDate() : null,
+                        rs.getDate(3).toLocalDate(),
                         rs.getString(4),
                         rs.getString(5),
                         rs.getInt(6)
                 ));
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
+
+    public List<String> getActivitiesByCategory(int categoryId) {
+
+        List<String> list = new ArrayList<>();
+
+        String sql = """
+            SELECT a.name
+            FROM activities a
+            JOIN activity_types t ON a.activity_type_id = t.id
+            WHERE t.category_id = ?
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(rs.getString(1));
+            }
+
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 

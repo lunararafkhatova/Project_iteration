@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface IActivityTypeRepository {
     List<ActivityType> getAll();
+    List<ActivityType> getByCategoryId(int categoryId);
 }
-

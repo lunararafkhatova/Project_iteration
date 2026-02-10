@@ -64,4 +64,30 @@ public class ActivityTypeRepository implements IActivityTypeRepository {
             e.printStackTrace();
         }
     }
+
+    public List<ActivityType> getByCategoryId(int categoryId) {
+        List<ActivityType> types = new ArrayList<>();
+
+        String sql = """
+            SELECT at.id, at.name
+            FROM activity_types at
+            WHERE at.category_id = ?
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                types.add(new ActivityType(
+                        rs.getInt("id"),
+                        rs.getString("name")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return types;
+    }
 }
