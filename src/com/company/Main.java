@@ -26,7 +26,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        IDB db = new PostgresDB(
+        IDB db = PostgresDB.getInstance(
                 "jdbc:postgresql://localhost:5432",
                 "postgres",
                 "0000",

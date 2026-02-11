@@ -18,4 +18,6 @@ public interface IActivityController {
     void showBasicStats();
 
     List<String> getActivitiesByCategory(int categoryId);
+
+    String getleaderactivity();
 }

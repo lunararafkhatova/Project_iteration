@@ -155,4 +155,29 @@ public class ActivityRepository implements IActivityRepository {
 
         return list;
     }
+    public ActivityFullDTO getActivityDetails(int activityId) {
+        String sql = """
+        SELECT a.id, u.name, a.activity_date, at.name, c.name, a.duration
+        FROM activities a
+        JOIN users u ON u.id = a.user_id
+        JOIN activity_types at ON a.activity_type_id = at.id
+        JOIN activity_categories c ON at.category_id = c.id
+        WHERE a.id = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new ActivityFullDTO(
+                            rs.getInt(1), rs.getString(2), rs.getDate(3).toLocalDate(),
+                            rs.getString(4), rs.getString(5), rs.getInt(6)
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching activity details: " + e.getMessage());
+        }
+        return null;
+    }
 }

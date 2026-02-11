@@ -19,8 +19,8 @@ public class ActivityController implements IActivityController {
 
     public String createActivity(int userId, int typeId, String name, int duration, String dateStr) {
 
-        if (name == null || name.isBlank()) {
-            return "Validation error: Activity name is required.";
+        if (typeId <= 0) {
+            return "Validation error: Invalid Activity Type ID.";
         }
 
         if (duration <= 0) {
@@ -84,5 +84,19 @@ public class ActivityController implements IActivityController {
 
     public List<String> getActivitiesByCategory(int categoryId) {
         return repository.getActivitiesByCategory(categoryId);
+    }
+    public String getleaderactivity() {
+
+        List<ActivityFullDTO> activities = repository.getFullActivities();
+
+
+        return activities.stream()
+
+                .max((a, b) -> Integer.compare(a.getDurationMin(), b.getDurationMin()))
+
+                .map(a -> "Most intense: " + a.getActivityTypeName() + " by " + a.getUserName() + " (" + a.getDurationMin() + " min)")
+
+                .orElse("No activities found.");
+
     }
 }

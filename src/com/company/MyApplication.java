@@ -96,7 +96,14 @@ public class MyApplication {
                         } else {
                             System.out.println("ACCESS DENIED");
                         }
+
                     }
+                    case 11 -> {
+
+                        System.out.println(activityController.getleaderactivity());
+
+                        break; }
+
 
                     case 0 -> {
                         return;
@@ -122,6 +129,7 @@ public class MyApplication {
         System.out.println("4. Get all activities");
         System.out.println("5. Get all activity types");
         System.out.println("8. Get full activities (JOIN)");
+        System.out.println("11. Get Leader Activity");
 
         if (currentRole.equalsIgnoreCase("ADMIN")) {
             System.out.println("6. Create activity");
