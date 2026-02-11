@@ -43,7 +43,7 @@ public List<Activity> searchActivities(String keyword) {
     return repository.searchByName(keyword);
 }
 
-// Total minutes by user
+
 public int getTotalMinutesByUser(int userId) {
 
     return repository.getByUserId(userId)
