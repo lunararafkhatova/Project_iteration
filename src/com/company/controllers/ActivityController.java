@@ -52,7 +52,6 @@ public int getTotalMinutesByUser(int userId) {
             .sum();
 }
 
-// Activities between dates
 public List<Activity> getActivitiesBetween(String from, String to) {
 
     try {
